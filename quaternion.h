@@ -79,23 +79,23 @@ public:
   inline real Gety() const;
   inline real Getz() const;
 
-  inline Quaternion operator+ (const Quaternion q2) const; // q3 = q1+q2
-  inline Quaternion operator- (const Quaternion q2) const; // q3 = q1-q2
-  inline Quaternion operator* (const Quaternion q2) const; // q3 = q1 * q2
-  inline Quaternion operator/ (const Quaternion q2) const; // q3 = q1 / q2
+  inline Quaternion operator+ (const Quaternion& q2) const; // q3 = q1+q2
+  inline Quaternion operator- (const Quaternion& q2) const; // q3 = q1-q2
+  inline Quaternion operator* (const Quaternion& q2) const; // q3 = q1 * q2
+  inline Quaternion operator/ (const Quaternion& q2) const; // q3 = q1 / q2
 
   // Multiply quaternion with a scalar; e.g. q1 = alpha * q2;
-  friend Quaternion<real> operator* (real alpha, const Quaternion<real> q2)
+  friend Quaternion<real> operator* (real alpha, const Quaternion<real>& q2)
   {
     return Quaternion<real>(alpha * q2.s, alpha * q2.x, alpha * q2.y, alpha * q2.z);
   }
 
   inline Quaternion conj(); // q2 = q1.conj()
 
-  inline Quaternion & operator= (const Quaternion rhs); // q2 = q1;
+  inline Quaternion & operator= (const Quaternion& rhs); // q2 = q1;
   inline Quaternion & operator= (real s); // sets quaternion equal to the scalar quaternion s
-  inline int operator== (const Quaternion rhs) const; // q2 == q1
-  inline int operator!= (const Quaternion rhs) const; // q2 != q1
+  inline int operator== (const Quaternion& rhs) const; // q2 == q1
+  inline int operator!= (const Quaternion& rhs) const; // q2 != q1
 
   void Normalize(); // q.Normalize() scales q such that it is unit size
 
@@ -130,6 +130,10 @@ public:
 
   // Prints the quaternion to stdout.
   inline void Print() const;
+
+  inline real Dot(const Quaternion<real>& other){
+      return x * other.x + y * other.y + z * other.z + s * other.s;
+  }
 
 protected:
   real s,x,y,z; 
@@ -190,7 +194,7 @@ template <typename real>
 inline real Quaternion<real>::Getz() const { return z; }
 
 template <typename real>
-inline Quaternion<real> & Quaternion<real>::operator= (const Quaternion<real> rhs)
+inline Quaternion<real> & Quaternion<real>::operator= (const Quaternion<real>& rhs)
 {
   s = rhs.s;
   x = rhs.x;
@@ -212,14 +216,14 @@ inline Quaternion<real> & Quaternion<real>::operator= (real s_g)
 }
 
 template <typename real>
-inline int Quaternion<real>::operator== (const Quaternion<real> rhs) const
+inline int Quaternion<real>::operator== (const Quaternion<real>& rhs) const
 {
   return ((s == rhs.s) && (x == rhs.x) &&
           (y == rhs.y) && (z == rhs.z));
 }
 
 template <typename real>
-inline int Quaternion<real>::operator!= (const Quaternion<real> rhs) const
+inline int Quaternion<real>::operator!= (const Quaternion<real>& rhs) const
 {
   return ((s != rhs.s) || (x != rhs.x) ||
           (y != rhs.y) || (z != rhs.z));
@@ -245,7 +249,7 @@ inline real Quaternion<real>::Norm2() const
 }
 
 template <typename real>
-inline Quaternion<real> Quaternion<real>::operator+ (const Quaternion<real> q2) const
+inline Quaternion<real> Quaternion<real>::operator+ (const Quaternion<real>& q2) const
 {
   Quaternion<real> w(s + q2.s, x + q2.x, y + q2.y, z + q2.z);
 
@@ -253,14 +257,14 @@ inline Quaternion<real> Quaternion<real>::operator+ (const Quaternion<real> q2) 
 }
 
 template <typename real>
-inline Quaternion<real> Quaternion<real>::operator- (const Quaternion<real> q2) const
+inline Quaternion<real> Quaternion<real>::operator- (const Quaternion<real>& q2) const
 {
   Quaternion<real> w(s - q2.s, x - q2.x, y - q2.y, z - q2.z);
   return w;  
 }
 
 template <typename real>
-inline Quaternion<real> Quaternion<real>::operator* (const Quaternion<real> q2) const 
+inline Quaternion<real> Quaternion<real>::operator* (const Quaternion<real>& q2) const
 {
   Quaternion<real> w(
         s * q2.s - x * q2.x - y    * q2.y - z * q2.z,
@@ -272,7 +276,7 @@ inline Quaternion<real> Quaternion<real>::operator* (const Quaternion<real> q2) 
 }
 
 template <typename real>
-inline Quaternion<real> Quaternion<real>::operator/ (const Quaternion<real> q2) const
+inline Quaternion<real> Quaternion<real>::operator/ (const Quaternion<real>& q2) const
 {
   // compute invQ2 = q2^{-1}
   Quaternion<real> invQ2; 

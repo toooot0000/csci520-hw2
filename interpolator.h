@@ -46,9 +46,9 @@ protected:
   // conversion routines
   // angles are given in degrees; assume XYZ Euler angle order
   void Rotation2Euler(double R[9], double angles[3]);
-  void Euler2Rotation(double angles[3], double R[9]);
+  void Euler2Rotation(const double angles[3], double R[9]);
   void Euler2Quaternion(double angles[3], Quaternion<double> & q); 
-  void Quaternion2Euler(Quaternion<double> & q, double angles[3]); 
+  void Quaternion2Euler(const Quaternion<double> & q, double angles[3]);
 
   // quaternion interpolation
   Quaternion<double> Slerp(double t, Quaternion<double> & qStart, Quaternion<double> & qEnd);

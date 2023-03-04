@@ -19,6 +19,11 @@ mocapPlayer: $(PLAYER_OBJECT_FILES)
 interpolate: $(INTERPOLATE_OBJECT_FILES)
 	$(COMPILER) $^ $(LINKERFLAGS) -o $@
 
+debug_interpolate: CXXFLAGS += -g -Wall -DDEBUG
+debug_interpolate: $(INTERPOLATE_OBJECT_FILES)
+	$(COMPILER) $^ $(LINKERFLAGS) -g -Wall -DDEBUG -o $@
+
+
 %.o: %.cpp 
 	$(COMPILER) -c $(COMPILERFLAGS) $^
 
