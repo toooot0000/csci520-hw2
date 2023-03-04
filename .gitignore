@@ -1,3 +1,6 @@
 *.o
 *~
 "#"*"#"
+interpolate
+mocapPlayer
+debug_*

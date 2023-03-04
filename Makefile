@@ -30,3 +30,5 @@ debug_interpolate: $(INTERPOLATE_OBJECT_FILES)
 clean:
 	-rm -rf core *.o *~ "#"*"#" test
 
+debug_clean: clean
+	-rm -rf debug_*
