@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#include <utility>
 #include "motion.h"
 #include "interpolator.h"
 #include "types.h"
@@ -130,9 +131,103 @@ void Interpolator::Euler2Rotation(const double angles[3], double R[9])
     R[8] = ca * cb;
 }
 
+/**
+ *
+ * @param p0
+ * @param p1
+ * @return return [p
+ */
+template<class T>
+static std::pair<T, T> GetControlPoint(const T& p0, const T& p1, const T& p2, T (*lerp)(const T&, const T&, double)){
+    auto anBar = lerp(lerp(p0, p1, 2.0), p2, 0.5);
+    return {lerp(p1, anBar, 1.0/3), lerp(p1, anBar, -1.0/3)};
+}
+
+template <class T>
+static const T& min (const T& a, const T& b) {
+    return b >= a ? a : b;     // or: return !comp(b,a)?a:b; for version (2)
+}
+
+template <class T>
+static T Lerp(const T& start, const T& end, double t){
+    return (1 - (t)) * (start) + (t) * (end);
+}
+
+
 void Interpolator::BezierInterpolationEuler(Motion * pInputMotion, Motion * pOutputMotion, int N)
 {
   // students should implement this
+    int inputLength = pInputMotion->GetNumFrames(); // frames are indexed 0, ..., inputLength-1
+    int keyframe[3] = {0,N + 1,min((N + 1) * 2, inputLength - 1)};
+
+    Posture *p0 = pInputMotion->GetPosture(keyframe[0]),
+            *p1 = pInputMotion->GetPosture(keyframe[1]),
+            *p2 = pInputMotion->GetPosture(keyframe[2]);
+
+    vector posAn0 = Lerp(p0->root_pos, Lerp(p2->root_pos, p1->root_pos, 2.0), 1.0/3),
+        posAn1, posBn1;
+
+    vector boneAn0[MAX_BONES_IN_ASF_FILE], boneAn1[MAX_BONES_IN_ASF_FILE], boneBn1[MAX_BONES_IN_ASF_FILE];
+    for(int i = 0; i<MAX_BONES_IN_ASF_FILE; i++){
+        boneAn0[i] = Lerp(p0->bone_rotation[i], Lerp(p2->bone_rotation[i], p1->bone_rotation[i], 2.0), 1.0/3);
+    }
+
+    while(keyframe[1] < inputLength){
+        printf("Lerp from frame#%d to frame#%d\n", keyframe[0], keyframe[1]);
+
+        p0 = pInputMotion->GetPosture(keyframe[0]);
+        p1 = pInputMotion->GetPosture(keyframe[1]);
+        pOutputMotion->SetRootPos(keyframe[0], p0->root_pos);
+        pOutputMotion->SetRootPos(keyframe[1], p1->root_pos);
+        for(int i = 0; i<MAX_BONES_IN_ASF_FILE; i++){
+            pOutputMotion->SetBoneRotation(keyframe[0], i, p0->bone_rotation[i]);
+            pOutputMotion->SetBoneRotation(keyframe[1], i, p1->bone_rotation[i]);
+        }
+
+        if(keyframe[2] < inputLength){
+            p2 = pInputMotion->GetPosture(keyframe[2]);
+            auto next = GetControlPoint(p0->root_pos, p1->root_pos, p2->root_pos, Lerp);
+            posAn1 = next.first;
+            posBn1 = next.second;
+
+            for(int i = 0; i<MAX_BONES_IN_ASF_FILE; i++){
+                auto boneNext = GetControlPoint(p0->bone_rotation[i], p1->bone_rotation[i], p2->bone_rotation[i], Lerp);
+                boneAn1[i] = boneNext.first;
+                boneBn1[i] = boneNext.second;
+            }
+        } else {
+            auto pm1 = pInputMotion->GetPosture(keyframe[0] - N - 1);
+            posBn1 = Lerp(p1->root_pos, Lerp(pm1->root_pos, p0->root_pos, 2.0), 1.0/3);
+            for(int i = 0; i<MAX_BONES_IN_ASF_FILE; i++){
+                boneBn1[i] = Lerp(p1->bone_rotation[i], Lerp(pm1->bone_rotation[i], p0->bone_rotation[i], 2.0), 1.0/3);
+            }
+        }
+
+        for(int f = 1; f < N + 1; f++ ){
+            Posture inter;
+            auto t = (double)(f) / (N + 1);
+            inter.root_pos = DeCasteljauEuler(t, p0->root_pos, posAn0, posBn1, p1->root_pos);
+
+            for(int i = 0; i < MAX_BONES_IN_ASF_FILE; i++){
+                inter.bone_rotation[i] = DeCasteljauEuler(t, p0->bone_rotation[i], boneAn0[i], boneBn1[i], p1->bone_rotation[i]);
+            }
+            pOutputMotion->SetPosture(f + keyframe[0], inter);
+        }
+
+        std::swap(posAn0, posAn1);
+        for(int i = 0; i<MAX_BONES_IN_ASF_FILE; i++){
+            std::swap(boneAn0[i], boneAn1[i]);
+        }
+
+
+        keyframe[0] = keyframe[1];
+        keyframe[1] = keyframe[2];
+        keyframe[2] += N + 1;
+    }
+
+    for(int f = keyframe[0] + 1; f < inputLength; f++){
+        pOutputMotion->SetPosture(f, *(pInputMotion->GetPosture(f)));
+    }
 }
 
 static void FixNan(double angles[3]){
@@ -234,20 +329,31 @@ Quaternion<double> Interpolator::Double(Quaternion<double> p, Quaternion<double>
 {
   // students should implement this
   Quaternion<double> result;
+  result = 2 * (p.Dot(q)) * q - p;
   return result;
 }
 
 vector Interpolator::DeCasteljauEuler(double t, vector p0, vector p1, vector p2, vector p3)
 {
   // students should implement this
-  vector result;
-  return result;
+    vector p[4] = {p0, p1, p2, p3};
+    for(int i = 0; i< 4; i++){
+        for(int j = 3; j > 0; j--){
+            p[j] = (1 - t) * p[j-1] + t * p[j];
+        }
+    }
+    return p[3];
 }
 
 Quaternion<double> Interpolator::DeCasteljauQuaternion(double t, Quaternion<double> p0, Quaternion<double> p1, Quaternion<double> p2, Quaternion<double> p3)
 {
   // students should implement this
-  Quaternion<double> result;
-  return result;
+    Quaternion<double> p[4] = {p0, p1, p2, p3};
+    for(int i = 0; i< 4; i++){
+        for(int j = 3; j > 0; j--){
+            p[j] = (1 - t) * p[j-1] + t * p[j];
+        }
+    }
+    return p[3];
 }
 

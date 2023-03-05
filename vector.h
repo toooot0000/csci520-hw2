@@ -31,15 +31,23 @@ class vector
   // cross product
   friend vector    operator*( vector const&, vector const& );
 
+
   // scalar Multiplication
   friend vector    operator*( vector const&, double );
+
+  inline friend vector operator*(double a, const vector& v){
+      return operator*(v, a);
+  }
 
   // scalar Division
   friend vector    operator/( vector const&, double );
 
 
   friend double    len( vector const& );
-  friend vector	normalize( vector const& );
+  inline friend vector	normalize( vector const& v){
+      auto _len = len(v);
+      return v * (1 / _len);
+  }
 
   friend double       angle( vector const&, vector const& );
 
