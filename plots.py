@@ -72,7 +72,7 @@ def makeSample(lo: int, hi: int, boneName: str, axisInd: int) -> Callable[Postur
 
 
 def graph1():
-    data = makeData("Linear Euler vs. Bezier Euler", "Linear", "Bezier")
+    data = makeData("1# Linear Euler vs. Bezier Euler", "Linear", "Bezier")
     data.x = list(range(600, 801))
 
     sample = makeSample(600, 800, "lfemur", 0)
@@ -89,7 +89,7 @@ def graph1():
 
 
 def graph2():
-    data = makeData("Slerp Quaternion vs. Bezier Quaternion",
+    data = makeData("2# Slerp Quaternion vs. Bezier Quaternion",
                     "Slerp", "Bezier")
     data.x = list(range(600, 801))
 
@@ -104,7 +104,7 @@ def graph2():
 
 
 def graph3():
-    data = makeData("Linear Euler vs. Slerp Quaternion",
+    data = makeData("3# Linear Euler vs. Slerp Quaternion",
                     "Euler", "Slerp")
     data.x = list(range(200, 501))
 
@@ -119,7 +119,7 @@ def graph3():
 
 
 def graph4():
-    data = makeData("Bezier Euler vs. Bezier Quaternion",
+    data = makeData("4# Bezier Euler vs. Bezier Quaternion",
                     "Euler", "Slerp")
     data.x = list(range(200, 501))
 
