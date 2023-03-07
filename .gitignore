@@ -4,3 +4,5 @@
 interpolate
 mocapPlayer
 debug_*
+
+.venv/*

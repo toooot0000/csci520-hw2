@@ -51,7 +51,7 @@ protected:
   void Quaternion2Euler(const Quaternion<double> & q, double angles[3]);
 
   // quaternion interpolation
-  Quaternion<double> Slerp(double t, Quaternion<double> & qStart, Quaternion<double> & qEnd);
+  static Quaternion<double> Slerp(double t, const Quaternion<double> & qStart, const Quaternion<double> & qEnd);
   Quaternion<double> Double(Quaternion<double> p, Quaternion<double> q);
 
   // interpolation routines

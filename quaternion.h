@@ -131,7 +131,7 @@ public:
   // Prints the quaternion to stdout.
   inline void Print() const;
 
-  inline real Dot(const Quaternion<real>& other){
+  inline real Dot(const Quaternion<real>& other) const{
       return x * other.x + y * other.y + z * other.z + s * other.s;
   }
 
