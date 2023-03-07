@@ -403,9 +403,8 @@ void Interpolator::Quaternion2Euler(const Quaternion<double> & q, double angles[
 Quaternion<double> Interpolator::Slerp(double t, const Quaternion<double> & qStart, const Quaternion<double> & qEnd)
 {
 #define clamp(x, lo, hi) fmin(fmax((x), (lo)), (hi))
-//    if((qStart + qEnd).Norm2() < 16 * DBL_EPSILON) return qStart;
-//    if((qStart - qEnd).Norm2() < 16 * DBL_EPSILON) return qStart;
-    t = clamp(t, 0, 1);
+    if((qStart + qEnd).Norm2() < 16 * DBL_EPSILON) return qStart;
+    if((qStart - qEnd).Norm2() < 16 * DBL_EPSILON) return qStart;
     double cosTheta = qStart.Dot(qEnd);
     double sign = 1;
     if(cosTheta < 0) {
@@ -432,7 +431,7 @@ vector Interpolator::DeCasteljauEuler(double t, vector p0, vector p1, vector p2,
   // students should implement this
     vector p[4] = {p0, p1, p2, p3};
     for(int i = 1; i < 4; i++){
-        for(int j = 0; j < 4 - j; j++){
+        for(int j = 0; j < 4 - i; j++){
             p[j] = Lerp(t, p[j], p[j+1]);
         }
     }
@@ -443,7 +442,7 @@ Quaternion<double> Interpolator::DeCasteljauQuaternion(double t, Quaternion<doub
 {
     Quaternion<double> p[4] = {p0, p1, p2, p3};
     for(int i = 1; i < 4; i++){
-        for(int j = 0; j < 4 - j; j++){
+        for(int j = 0; j < 4 - i; j++){
             p[j] = Slerp(t, p[j], p[j+1]);
         }
     }
