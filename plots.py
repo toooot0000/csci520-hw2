@@ -28,7 +28,7 @@ def plot(data: Data):
     ax.set_ylabel("Angle/deg")  # Add a y-label to the axes.
     ax.set_title(data.title)  # Add a title to the axes.
     ax.legend()  # Add a legend.
-    plt.savefig(f"{data.title}.png")
+    plt.savefig(f"./pic/{data.title}.png")
 
 
 def readFile(filename: str):
@@ -52,10 +52,14 @@ class Posture:
 def parseLine(lines: list[str]):
     frame = int(lines[0])
     bones = dict()
+    pos = [0, 0, 0]
     for line in lines[1:]:
         split = line.split(' ')
-        bones[split[0]] = [float(i) for i in split[1:4]]
-    pos = bones['root'][3:6]
+        if split[0] == 'root':
+            pos = [float(i) for i in split[1:4]]
+            bones[split[0]] = [float(i) for i in split[4:7]]
+        else:
+            bones[split[0]] = [float(i) for i in split[1:4]]
     return Posture(frame, pos, bones)
 
 

@@ -64,7 +64,7 @@ enum SaveScreenToFileMode
 int saveScreenToFileOnceCount = 0;
 char saveScreenToFileOnceFilename[FILENAME_MAX];
 int saveScreenToFileContinuousCount = 0;
-char saveScreenToFileContinuousFilename[FILENAME_MAX];
+char saveScreenToFileContinuousFilename[FILENAME_MAX] = "ppms/";
 SaveScreenToFileMode saveScreenToFile = SAVE_DISABLED;
 
 SwitchStatus useFog = OFF;
@@ -92,10 +92,10 @@ void CreateScreenFilename(SaveScreenToFileMode saveToFileMode, int fileCount, ch
   switch (saveToFileMode)
   {
   case SAVE_ONCE:
-    strcpy(filename, "scr");
+    strcpy(filename, "ppms/scr");
     break;
   case SAVE_CONTINUOUS:
-    strcpy(filename, "pic");
+    strcpy(filename, "ppms/pic");
   	break;
   default:
     printf("Error in CreateScreenFilename: saveToFileMode is not recognized.\n");

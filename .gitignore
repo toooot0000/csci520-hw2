@@ -6,3 +6,5 @@ mocapPlayer
 debug_*
 
 .venv/*
+
+videos/*
